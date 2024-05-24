@@ -14,7 +14,16 @@ from django.utils.dateparse import parse_date
 @permission_classes([])
 def property_list(request):
     properties = Property.objects.all()
+    host_id = request.GET.get('host_id', '')
+
+    # 
+    # Filter properties by host_id
+    if host_id:
+        properties = properties.filter(host__id=host_id)
+
+        
     serializer = PropertyListSerializer(properties, many=True)
+
     return JsonResponse(serializer.data, safe=False)
 
 

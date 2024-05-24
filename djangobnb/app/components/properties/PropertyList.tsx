@@ -14,12 +14,17 @@ export type PropertyType = {
     image_url: string;
 };
 
-const PropertyList = () => {
-    const [properties, setProperties] = useState<PropertyType[]>([]);
-    const [properties2, setProperties2] = useState<PropertyType[]>([]);
+interface PropertyListProps {
+    host_id?: string | null;
+}
 
+const PropertyList: React.FC<PropertyListProps> = ({ host_id }) => {
+    const [properties, setProperties] = useState<PropertyType[]>([]);
     const getProperties = async () => {
-        const url = "/api/properties/";
+        let url = "/api/properties/";
+        if (host_id) {
+            url = `/api/properties/?host_id=${host_id}`;
+        }
         try {
             const tmpProperties = await axios.get(url);
             setProperties(tmpProperties.data);
