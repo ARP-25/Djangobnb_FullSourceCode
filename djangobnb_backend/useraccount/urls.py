@@ -13,6 +13,7 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='logout'),
     path('register/', RegisterView.as_view(), name='register'),
     path('user/', UserDetailsView.as_view(), name='user'),
+    path('myreservations/', api.reservations_list, name='api-reservations-list'),
     path('<uuid:pk>/', api.host_detail, name='api-host-detail'),
     # path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     # path('token/refresh/', get_refresh_view(), name='token_refresh'),

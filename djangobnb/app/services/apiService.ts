@@ -31,13 +31,14 @@ const apiService = {
         console.log("post", url, data);
 
         const token = await getAccessToken();
-
+        console.log("Token ============= ", token);
         return new Promise((resolve, reject) => {
             fetch(`${process.env.NEXT_PUBLIC_API_HOST}${url}`, {
                 method: "POST",
                 body: data,
                 headers: {
                     Authorization: `Bearer ${token}`,
+                    // "Content-Type": "application/json",
                 },
             })
                 .then((response) => response.json())
