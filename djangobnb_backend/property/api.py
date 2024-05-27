@@ -12,49 +12,47 @@ from django.shortcuts import get_object_or_404
 @permission_classes([])
 def property_list(request):
     print('================================ IN PROPERTY LIST ===========================')
-    
-    # Check for the Authorization header
-    auth_header = request.META.get('HTTP_AUTHORIZATION', None)
-    if auth_header is None:
-        print('Authorization header is missing')
-        return JsonResponse({'error': 'Authorization header is missing'}, status=401)
-    
-    
-    try:
-        token_str = auth_header.split('Bearer ')[1]
-        print('Token after split ===========================', token_str)
-        
-        token = AccessToken(token_str)
-        print('Token ===========================', token)
-        
-        user_id = token['user_id']
-        print('User ID ===========================', user_id)
-        
-        user = User.objects.get(pk=user_id)
-        print('User ===========================', user)
-        
-    except Exception as e:
-        print('Error processing token:', str(e))
-        user = None
-    
-    favorites = []
-    properties = Property.objects.all()
-    host_id = request.GET.get('host_id', '')
 
-    # Filter properties by host_id
+    #
+    # Auth
+    try:
+        token = request.META['HTTP_AUTHORIZATION'].split('Bearer ')[1]
+        token = AccessToken(token)
+        user_id = token.payload['user_id']
+        user = User.objects.get(pk=user_id)
+    except Exception as e:
+        user = None
+
+    #
+    #
+    is_favorite = request.GET.get('is_favorite', None)
+    host_id = request.GET.get('host_id', None)
+
+    #
+    # Filter properties by host_id if provided
+    properties = Property.objects.all()
     if host_id:
         properties = properties.filter(host__id=host_id)
-    print('Properties ===========================', properties)
+    print('Properties after host filter===========================', properties)
+    
+    #
+    # Filter properties by favorite if is_favorite is true
+    if is_favorite and is_favorite.lower() == 'true':
+        properties = properties.filter(favorited=user)
+    print('Properties after favorite filter===========================', properties)
 
+    #
+    # Favorites
+    favorites = []
     if user:
         for property in properties:
             if user in property.favorited.all():
                 favorites.append(property.id)
-    print('Favorites ===========================', favorites)
 
+    #
+    # Serialize the properties and return the response with serializes data and favorites
     serializer = PropertyListSerializer(properties, many=True)
     return JsonResponse({'data': serializer.data, 'favorites': favorites}, status=200)
-
 
 
 @api_view(['GET'])

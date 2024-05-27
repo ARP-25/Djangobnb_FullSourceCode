@@ -77,10 +77,17 @@ REST_AUTH = {
     "JWT_AUTH_HTTPONLY": False,
 }
 
-
+# Channel Layers for Chat function
+CHANNEL_LAYERS ={
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer'
+    }
+}
 
 # Application definition
 INSTALLED_APPS = [
+    'daphne',
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -105,6 +112,7 @@ INSTALLED_APPS = [
     # Custom
     'useraccount',
     'property',
+    'chat',
 ]
 
 MIDDLEWARE = [
@@ -136,7 +144,10 @@ TEMPLATES = [
     },
 ]
 
+# Entry point for http, https, etc
 WSGI_APPLICATION = 'djangobnb_backend.wsgi.application'
+# Entry point for websockets
+ASGI_APPLICATION = 'djangobnb_backend.routing.application'
 
 
 # Database
