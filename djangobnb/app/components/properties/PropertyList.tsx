@@ -19,9 +19,10 @@ export type PropertyType = {
 // Interface for the PropertyList component
 interface PropertyListProps {
     host_id?: string | null;
+    favorites?: boolean | null;
 }
 
-const PropertyList: React.FC<PropertyListProps> = ({ host_id }) => {
+const PropertyList: React.FC<PropertyListProps> = ({ host_id, favorites }) => {
     //
     // State to store the properties
     const [properties, setProperties] = useState<PropertyType[]>([]);
@@ -50,6 +51,8 @@ const PropertyList: React.FC<PropertyListProps> = ({ host_id }) => {
         let url = "/api/properties/";
         if (host_id) {
             url = `/api/properties/?host_id=${host_id}`;
+        } else if (favorites) {
+            url = "/api/properties/?is_favorites=true";
         }
         try {
             const response = await apiService.get(url);
