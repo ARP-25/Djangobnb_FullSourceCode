@@ -9,6 +9,10 @@ RUN apt-get update && apt-get install -y \
 # Set the working directory
 WORKDIR /usr/src/djangobnb_backend
 
+# This is important to avoid buffering issues and
+# see print statements in real-time in the terminal 
+ENV PYTHONUNBUFFERED=1
+
 # Upgrade pip
 RUN pip install --upgrade pip
 

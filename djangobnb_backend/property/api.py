@@ -1,30 +1,59 @@
 from django.http import JsonResponse
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-
-from property.models import Property, Reservation
-from property.serializers import PropertyListSerializer, PropertyDetailSerializer, ReservationsListSerializer
-
-from property.forms import PropertyForm
-from django.utils.dateparse import parse_date
-
+from rest_framework_simplejwt.tokens import AccessToken
+from property.models import Property
+from property.serializers import PropertyListSerializer, ReservationsListSerializer, PropertyDetailSerializer
+from useraccount.models import User
+from django.shortcuts import get_object_or_404
 
 
 @api_view(['GET'])
 @authentication_classes([])
 @permission_classes([])
 def property_list(request):
+    print('================================ IN PROPERTY LIST ===========================')
+    
+    # Check for the Authorization header
+    auth_header = request.META.get('HTTP_AUTHORIZATION', None)
+    if auth_header is None:
+        print('Authorization header is missing')
+        return JsonResponse({'error': 'Authorization header is missing'}, status=401)
+    
+    
+    try:
+        token_str = auth_header.split('Bearer ')[1]
+        print('Token after split ===========================', token_str)
+        
+        token = AccessToken(token_str)
+        print('Token ===========================', token)
+        
+        user_id = token['user_id']
+        print('User ID ===========================', user_id)
+        
+        user = User.objects.get(pk=user_id)
+        print('User ===========================', user)
+        
+    except Exception as e:
+        print('Error processing token:', str(e))
+        user = None
+    
+    favorites = []
     properties = Property.objects.all()
     host_id = request.GET.get('host_id', '')
 
-    # 
     # Filter properties by host_id
     if host_id:
         properties = properties.filter(host__id=host_id)
+    print('Properties ===========================', properties)
 
-        
+    if user:
+        for property in properties:
+            if user in property.favorited.all():
+                favorites.append(property.id)
+    print('Favorites ===========================', favorites)
+
     serializer = PropertyListSerializer(properties, many=True)
-
-    return JsonResponse(serializer.data, safe=False)
+    return JsonResponse({'data': serializer.data, 'favorites': favorites}, status=200)
 
 
 
@@ -92,3 +121,14 @@ def property_reservations(request, pk):
     serializer = ReservationsListSerializer(reservations, many=True)
     
     return JsonResponse(serializer.data, safe=False, status=200)
+
+
+@api_view(['POST'])
+def toggle_favorite(request, pk):
+    property = get_object_or_404(Property, pk=pk)
+    if request.user in property.favorited.all():
+        property.favorited.remove(request.user)
+        return JsonResponse({'message': 'Property removed from favorites', 'is_favorite': False}, status=200)
+    else:
+        property.favorited.add(request.user)
+        return JsonResponse({'message': 'Property added to favorites', 'is_favorite': True}, status=200)

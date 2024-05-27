@@ -1,13 +1,16 @@
 import Image from "next/image";
 import { PropertyType } from "./PropertyList";
 import { useRouter } from "next/navigation";
+import FavoriteButton from "../FavoriteButton";
+
+//
+// Interface for the PropertyListItems component
 interface PropertyProps {
     property: PropertyType;
+    markFavorite: (is_favorite: boolean) => void;
 }
 
-const PropertyListItems: React.FC<PropertyProps> = ({ property }) => {
-    // Debugging
-    // console.log("property =========== ", property.image_url);
+const PropertyListItems: React.FC<PropertyProps> = ({ property, markFavorite }) => {
     const router = useRouter();
     return (
         <div className="cursor-pointer" onClick={() => router.push(`/properties/${property.id}`)}>
@@ -19,6 +22,9 @@ const PropertyListItems: React.FC<PropertyProps> = ({ property }) => {
                     fill
                     sizes="(max-width: 768px) 768px, (max-width: 1200px) 768px, 768px"
                 />
+                {markFavorite && (
+                    <FavoriteButton id={property.id} is_favorite={property.is_favorite} markFavorite={(is_favorite) => markFavorite(is_favorite)} />
+                )}
             </div>
             <div className="mt-2">
                 <p className="text-lg font-bold">{property.name}</p>

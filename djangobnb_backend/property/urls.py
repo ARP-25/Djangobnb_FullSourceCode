@@ -8,4 +8,5 @@ urlpatterns = [
     path('<uuid:pk>/', api.property_detail),
     path('<uuid:pk>/book/', api.book_property),
     path('<uuid:pk>/reservations/', api.property_reservations),
+    path('<uuid:pk>/toggle_favorite/', api.toggle_favorite),
 ]

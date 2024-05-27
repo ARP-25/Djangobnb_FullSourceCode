@@ -2,6 +2,11 @@ version: '3.9'
 services:
   web:
     build: ./djangobnb_backend
+
+    # This is important to avoid buffering issues and
+    # see print statements in real-time in the terminal 
+    environment:
+      - PYTHONUNBUFFERED=1
     command: python manage.py runserver 0.0.0.0:8000
     ports:
       - "8000:8000"

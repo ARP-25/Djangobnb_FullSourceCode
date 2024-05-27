@@ -6,25 +6,31 @@ const apiService = {
 
         const token = await getAccessToken();
 
-        return new Promise((resolve, reject) => {
-            fetch(`${process.env.NEXT_PUBLIC_API_HOST}${url}`, {
-                method: "GET",
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-                .then((response) => response.json())
-                .then((json) => {
-                    console.log("Response:", json);
+        return fetch(`${process.env.NEXT_PUBLIC_API_HOST}${url}`, {
+            method: "GET",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        })
+            .then((response) => {
+                console.log("Full response:", response);
 
-                    resolve(json);
-                })
-                .catch((error) => {
-                    reject(error);
-                });
-        });
+                if (!response.ok) {
+                    return Promise.reject(`HTTP error! status: ${response.status}`);
+                }
+
+                return response.json();
+            })
+            .then((json) => {
+                console.log("Response JSON:", json);
+                return json;
+            })
+            .catch((error) => {
+                console.error("Fetch error:", error);
+                throw error;
+            });
     },
 
     post: async function (url: string, data: any): Promise<any> {
@@ -37,8 +43,8 @@ const apiService = {
                 method: "POST",
                 body: data,
                 headers: {
-                    Authorization: `Bearer ${token}`,
-                    // "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`, // This is the token you're sending
+                    "Content-Type": "application/json", // This is the type of data you're sending, importtant for authentication
                 },
             })
                 .then((response) => response.json())

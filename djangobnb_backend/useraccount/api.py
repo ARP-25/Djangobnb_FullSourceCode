@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from useraccount.serializers import UserDetailSerializer
 from useraccount.models import User
 from property.serializers import ReservationsListSerializer
+from property.models import Property
 
 @api_view(['GET'])
 @authentication_classes([])
@@ -24,3 +25,5 @@ def reservations_list(request):
     print("User ==========================>", request.user)
     serializer = ReservationsListSerializer(reservations, many=True)
     return JsonResponse(serializer.data, safe=False, status=200)
+
+
