@@ -18,7 +18,7 @@ const HostDetailPage = async ({ params }: { params: { id: string } }) => {
                         </div>
                         <img src="" alt="" />
                         <h1 className="mt-6 text-2xl">{host.name}</h1>
-                        {userId !== host.id && <ContactButton />}
+                        {userId !== host.id && <ContactButton userId={userId} hostId={host.id} />}
                     </div>
                 </aside>
                 <div className="col-span-1 md:col-span-3 md:col-span-4 pl-0 md:pl-6">
