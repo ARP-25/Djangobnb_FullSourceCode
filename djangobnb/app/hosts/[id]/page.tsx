@@ -21,7 +21,7 @@ const HostDetailPage = async ({ params }: { params: { id: string } }) => {
                         {userId !== host.id && <ContactButton userId={userId} hostId={host.id} />}
                     </div>
                 </aside>
-                <div className="col-span-1 md:col-span-3 md:col-span-4 pl-0 md:pl-6">
+                <div className="col-span-1 md:col-span-4 pl-0 md:pl-6">
                     <div className="mt-4 md:mt-0 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
                         <PropertyList host_id={host.id} />
                     </div>

@@ -1,6 +1,12 @@
+"use client";
+
+import useSearchModal from "@/app/hooks/useSearchModal";
+
 const SearchFilters = () => {
+    const searchModal = useSearchModal();
+
     return (
-        <div className="h-[48] h-lg-[64px] flex flex-row items-center justify-between border rounded-full">
+        <div onClick={() => searchModal.open("location")} className="h-[48] h-lg-[64px] flex flex-row items-center justify-between border rounded-full">
             <div className="hidden xl:block">
                 <div className="flex flex-row items-center justify-between  ">
                     <div className="cursor-pointer w-[250px] h-[64px] px-8 flex flex-col rounded-full hover:bg-gray-100 items-center justify-center">
@@ -26,13 +32,13 @@ const SearchFilters = () => {
                     <svg
                         viewBox="0 0 32 32"
                         style={{
-                            display: 'block',
-                            fill: 'none',
-                            height: '16px',
-                            width: '16px',
-                            stroke: 'currentColor',
-                            strokeWidth: '4',
-                            overflow: 'visible',
+                            display: "block",
+                            fill: "none",
+                            height: "16px",
+                            width: "16px",
+                            stroke: "currentColor",
+                            strokeWidth: "4",
+                            overflow: "visible",
                         }}
                         aria-hidden="true"
                         role="presentation"

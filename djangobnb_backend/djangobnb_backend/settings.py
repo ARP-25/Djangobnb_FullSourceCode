@@ -144,10 +144,10 @@ TEMPLATES = [
     },
 ]
 
-# Entry point for http, https, etc
+# Entry point for http, https, etc into django
 WSGI_APPLICATION = 'djangobnb_backend.wsgi.application'
-# Entry point for websockets
-ASGI_APPLICATION = 'djangobnb_backend.routing.application'
+# Entry point for websockets into django
+ASGI_APPLICATION = 'djangobnb_backend.asgi.application'
 
 
 # Database

@@ -1,15 +1,18 @@
 import json
-from asgiref.sync import async_to_sync, sync_to_async
+
+from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 from .models import ConversationMessage
 
+
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
-        self.room_group_name = 'chat_%s' % self.room_name
+        self.room_group_name = f'chat_{self.room_name}'
 
-        # Join room group
+        # Join room
+
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
@@ -17,42 +20,46 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         await self.accept()
 
-    async def disconnect(self, close_code):
-        # Leave room group
+    async def disconnect(self):
+        # Leave room
+
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
         )
 
-    # Receive message from WebSocket
+    # Recieve message from web sockets
     async def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        message = text_data_json['message']
+        data = json.loads(text_data)
 
-        # Save message to database
-        await self.save_message(message)
+        conversation_id = data['data']['conversation_id']
+        sent_to_id = data['data']['sent_to_id']
+        name = data['data']['name']
+        body = data['data']['body']
 
-        # Send message to room group
         await self.channel_layer.group_send(
             self.room_group_name,
             {
                 'type': 'chat_message',
-                'message': message
+                'body': body,
+                'name': name
             }
         )
 
-    # Receive message from room group
+        await self.save_message(conversation_id, body, sent_to_id)
+    
+    # Sending messages
     async def chat_message(self, event):
-        message = event['message']
+        body = event['body']
+        name = event['name']
 
-        # Send message to WebSocket
         await self.send(text_data=json.dumps({
-            'message': message
+            'body': body,
+            'name': name
         }))
 
     @sync_to_async
-    def save_message(self, message):
-        ConversationMessage.objects.create(
-            message=message,
-            user=self.scope['user']
-        )
+    def save_message(self, conversation_id, body, sent_to_id):
+        user = self.scope['user']
+
+        ConversationMessage.objects.create(conversation_id=conversation_id, body=body, sent_to_id=sent_to_id, created_by=user)
