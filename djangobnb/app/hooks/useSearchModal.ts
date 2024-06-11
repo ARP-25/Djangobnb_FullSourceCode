@@ -4,9 +4,9 @@ export type SearchQuery = {
     country: string | undefined;
     checkIn: Date | undefined;
     checkOut: Date | undefined;
-    guests: Number;
-    bathrooms: Number;
-    bedrooms: Number;
+    guests: number;
+    bathrooms: number;
+    bedrooms: number;
     category: string;
 };
 
@@ -22,9 +22,18 @@ interface SearchModalStore {
 const useSearchModal = create<SearchModalStore>((set) => ({
     isOpen: false,
     step: "",
-    open: (step) => set({ isOpen: true, step: step }),
-    close: () => set({ isOpen: false }),
-    setQuery: (query: SearchQuery) => set({ query: query }),
+    open: (step) => {
+        console.log(`Modal opened to step: ${step}`);
+        set({ isOpen: true, step: step });
+    },
+    close: () => {
+        console.log("Modal closed");
+        set({ isOpen: false });
+    },
+    setQuery: (query: SearchQuery) => {
+        console.log("Query updated:", query);
+        set({ query: query });
+    },
     query: {
         country: "",
         checkIn: undefined,
