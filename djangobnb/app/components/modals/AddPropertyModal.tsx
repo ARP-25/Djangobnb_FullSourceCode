@@ -1,11 +1,9 @@
 "use client";
 
 import { useState } from "react";
-
 import Image from "next/image";
 import Modal from "./Modal";
 import useAddPropertyModal from "@/app/hooks/useAddPropertyModal";
-
 import CustomButton from "../forms/CustomButton";
 import Categories from "../addProperty/Categories";
 import SelectCountry, { SelectCountryValue } from "../forms/SelectCountry";
@@ -91,15 +89,17 @@ const AddPropertyModal = () => {
                     console.log("Property created successfully");
                     addPropertyModal.close();
                     resetForm();
-                    router.push("/");
+                    router.push("/?added=true");
                 } else {
                     // Ensure the response contains only strings
-                    const tmpErrors: string[] = Object.values(response.errors).map((error: any) => {
-                        if (typeof error === "object" && error.message) {
-                            return error.message;
-                        }
-                        return String(error);
-                    });
+                    const tmpErrors: string[] = response.errors
+                        ? Object.values(response.errors).map((error: any) => {
+                              if (typeof error === "object" && error.message) {
+                                  return error.message;
+                              }
+                              return String(error);
+                          })
+                        : ["An unknown error occurred"];
                     setErrors(tmpErrors);
                     console.log("Error creating property");
                 }
@@ -241,4 +241,5 @@ const AddPropertyModal = () => {
         </>
     );
 };
+
 export default AddPropertyModal;

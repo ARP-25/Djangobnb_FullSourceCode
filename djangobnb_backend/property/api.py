@@ -1,12 +1,16 @@
 from django.http import JsonResponse
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from . forms import PropertyForm
+from rest_framework.decorators import api_view, authentication_classes, permission_classes, parser_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import AccessToken
 from property.models import Property, Reservation
 from property.serializers import PropertyListSerializer, ReservationsListSerializer, PropertyDetailSerializer
 from useraccount.models import User
 from django.shortcuts import get_object_or_404
-
-
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.decorators import api_view, parser_classes
 # @api_view(['GET'])
 # @authentication_classes([])
 # @permission_classes([])
@@ -82,6 +86,7 @@ def property_list(request):
 
     country = request.GET.get('country', '')
     category = request.GET.get('category', '')
+    print('category', category)
     checkin_date = request.GET.get('checkIn', '')
     checkout_date = request.GET.get('checkOut', '')
     bedrooms = request.GET.get('numBedrooms', '')
@@ -118,8 +123,8 @@ def property_list(request):
     if country:
         properties = properties.filter(country=country)
     
-    if category and category != 'undefined':
-        properties = properties.filter(category=category)
+    if category and category.lower() != 'undefined':
+        properties = properties.filter(category__iexact=category)
     
     #
     # Favorites
@@ -151,17 +156,20 @@ def property_detail(request, pk):
 
 
 
-@api_view(['POST', 'FILES'])
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser])
 def create_property(request):
-    form = PropertyForm(request.POST, request.FILES)
+    form = PropertyForm(request.data, request.FILES)
     if form.is_valid():
-        property= form.save(commit=False)
+        property = form.save(commit=False)
         property.host = request.user
         property.save()
         return JsonResponse({"message": "Property created successfully", "success": True}, status=201)
     else:
         print('error', form.errors, form.non_field_errors)
-        return JsonResponse({"errors": form.errors.as_json()}, status=400)
+        return JsonResponse({"errors": form.errors}, status=400)
     
 
 

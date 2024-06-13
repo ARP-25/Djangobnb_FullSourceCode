@@ -1,10 +1,12 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import React from "react";
 import format from "date-fns/format";
 import PropertyListItem from "./PropertyListItem";
 import apiService from "@/app/services/apiService";
 import useSearchModal from "@/app/hooks/useSearchModal";
+import { useSearchParams } from "next/navigation";
 //
 // Type for the Property object used to set the property state which gets passed to the PropertyListItem component
 export type PropertyType = {
@@ -37,6 +39,11 @@ const PropertyList: React.FC<PropertyListProps> = ({ host_id, favorites }) => {
     const checkinDate = searchModal.query.checkIn;
     const checkoutDate = searchModal.query.checkOut;
     const category = searchModal.query.category;
+
+    //
+    //
+    const params = useSearchParams();
+
     //
     // Function to mark a property as favorite
     // Gets passed to the PropertyListItem component
@@ -114,10 +121,10 @@ const PropertyList: React.FC<PropertyListProps> = ({ host_id, favorites }) => {
     };
 
     //
-    // Fetch properties when the component mounts
+    // Fetch properties when the component mounts or query changes
     useEffect(() => {
         getProperties();
-    }, [host_id, category, searchModal.query]);
+    }, [host_id, searchModal.query, params]);
 
     return (
         <>

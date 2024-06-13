@@ -16,7 +16,6 @@ const apiService = {
         })
             .then((response) => {
                 console.log("Full response:", response);
-
                 if (!response.ok) {
                     return Promise.reject(`HTTP error! status: ${response.status}`);
                 }
@@ -38,22 +37,30 @@ const apiService = {
 
         const token = await getAccessToken();
         console.log("Token ============= ", token);
+
         return new Promise((resolve, reject) => {
             fetch(`${process.env.NEXT_PUBLIC_API_HOST}${url}`, {
                 method: "POST",
-                body: data,
+                body: data, // Assuming data is an instance of FormData
                 headers: {
-                    Authorization: `Bearer ${token}`, // This is the token you're sending
-                    "Content-Type": "application/json", // This is the type of data you're sending, importtant for authentication
+                    Authorization: `Bearer ${token}`, // Sending token for authentication
+                    // No need to set Content-Type when sending FormData
                 },
             })
-                .then((response) => response.json())
+                .then((response) => {
+                    if (!response.ok) {
+                        return response.json().then((json) => {
+                            return Promise.reject(json);
+                        });
+                    }
+                    return response.json();
+                })
                 .then((json) => {
                     console.log("Response:", json);
-
                     resolve(json);
                 })
                 .catch((error) => {
+                    console.error("Fetch error:", error);
                     reject(error);
                 });
         });
